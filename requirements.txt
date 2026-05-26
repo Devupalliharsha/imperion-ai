@@ -12,3 +12,4 @@ python-dotenv==1.0.1
 pydantic==2.7.1
 aiofiles==23.2.1
 rank-bm25==0.2.2
+numpy<2.0.0
