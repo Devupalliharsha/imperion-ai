@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+venv/
+venv311/
+.venv/
+env/
+
+# Environment files
+.env
+.env.*
+
+# Databases
+*.db
+*.sqlite3
+
+# ChromaDB
+chroma_data/
+backend/chroma_data/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
