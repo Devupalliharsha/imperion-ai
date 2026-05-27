@@ -11,6 +11,7 @@
   <img src="https://img.shields.io/badge/ChromaDB-VectorDB-6E44FF?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white"/>
   <img src="https://img.shields.io/badge/Render-Deploy-46E3B7?style=for-the-badge&logo=render&logoColor=black"/>
+  <img src="https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
   <img src="https://img.shields.io/badge/JWT-Authentication-black?style=for-the-badge&logo=jsonwebtokens"/>
 </p>
 
@@ -125,7 +126,7 @@ All traces are persisted for observability.
 # Tech Stack
 
 | Layer | Technology |
-|------|-------------|
+|-------|------------|
 | Backend | FastAPI |
 | Frontend | React |
 | Database | SQLite |
@@ -133,7 +134,8 @@ All traces are persisted for observability.
 | LLM Provider | Groq |
 | Embeddings | sentence-transformers |
 | Authentication | JWT |
-| Deployment | Render |
+| Containerization | Docker |
+| Deployment | Render (Docker) |
 
 ---
 
@@ -173,6 +175,7 @@ imperion-ai/
 ├── frontend/
 │   └── index.html
 │
+├── Dockerfile
 ├── requirements.txt
 ├── render.yaml
 ├── .env.example
@@ -186,7 +189,7 @@ imperion-ai/
 ## Agent Flow
 
 | Stage | Responsibility |
-|------|----------------|
+|-------|----------------|
 | Planner | Breaks queries into actionable steps |
 | Retriever | Retrieves relevant context from ChromaDB |
 | Executor | Runs tools + generates LLM response |
@@ -199,7 +202,7 @@ imperion-ai/
 ## Authentication
 
 | Method | Endpoint | Description |
-|------|-----------|-------------|
+|--------|-----------|-------------|
 | POST | `/auth/register` | Register user |
 | POST | `/auth/login` | Login and receive JWT |
 
@@ -208,7 +211,7 @@ imperion-ai/
 ## Agent
 
 | Method | Endpoint | Description |
-|------|-----------|-------------|
+|--------|-----------|-------------|
 | POST | `/agent/chat` | Main AI chat endpoint |
 
 ---
@@ -216,7 +219,7 @@ imperion-ai/
 ## Documents
 
 | Method | Endpoint | Description |
-|------|-----------|-------------|
+|--------|-----------|-------------|
 | POST | `/docs/upload` | Upload documents |
 | POST | `/docs/add-text` | Add raw text |
 
@@ -225,7 +228,7 @@ imperion-ai/
 ## Metrics
 
 | Method | Endpoint | Description |
-|------|-----------|-------------|
+|--------|-----------|-------------|
 | GET | `/metrics/dashboard` | System metrics |
 | GET | `/metrics/leads` | CRM leads |
 | POST | `/metrics/leads` | Add lead |
@@ -312,6 +315,132 @@ http://127.0.0.1:8000
 
 ---
 
+# Docker Deployment
+
+## Dockerfile
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+WORKDIR /app/backend
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+---
+
+## Build & Run Locally with Docker
+
+```bash
+docker build -t imperion-ai .
+
+docker run -p 8000:8000 --env-file .env imperion-ai
+```
+
+---
+
+# Render Deployment (via Docker)
+
+The platform is deployed on Render using Docker for consistent, cross-platform compatibility.
+
+---
+
+## 1. Push to GitHub
+
+```bash
+git add .
+git commit -m "Initial commit"
+git push origin main
+```
+
+---
+
+## 2. Create Render Web Service
+
+Go to:
+
+```text
+https://render.com
+```
+
+Create:
+
+```text
+New → Web Service
+```
+
+Connect the repository:
+
+```text
+devupalliharsha/imperion-ai
+```
+
+---
+
+## 3. Configure Render
+
+Render auto-detects the `Dockerfile` and `render.yaml`.
+
+The `render.yaml` is configured to use Docker:
+
+```yaml
+services:
+  - type: web
+    name: imperion-ai
+    env: docker
+    region: oregon
+    plan: free
+    healthCheckPath: /docs
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+    disk:
+      name: data
+      mountPath: /opt/render/project/src
+      sizeGB: 1
+```
+
+---
+
+## 4. Add Environment Variables
+
+In Render dashboard → Environment:
+
+| Key | Value |
+|-----|-------|
+| GROQ_API_KEY | your_groq_api_key |
+| SECRET_KEY | auto-generated |
+| ALGORITHM | HS256 |
+| ACCESS_TOKEN_EXPIRE_MINUTES | 60 |
+
+---
+
+## 5. Deploy
+
+Click:
+
+```text
+Create Web Service
+```
+
+Render builds the Docker image and deploys automatically.
+
+---
+
 # First Use Walkthrough
 
 ---
@@ -321,7 +450,7 @@ http://127.0.0.1:8000
 Create a new account:
 
 | Field | Example |
-|------|----------|
+|-------|---------|
 | Username | `admin` |
 | Password | `password123` |
 | Company Name | `acme-corp` |
@@ -374,7 +503,7 @@ Each user belongs to a `tenant_id`.
 All systems are tenant-isolated:
 
 | System | Isolation Strategy |
-|------|--------------------|
+|--------|--------------------|
 | SQLite | tenant_id filtering |
 | ChromaDB | Separate collections |
 | JWT | tenant_id embedded in token |
@@ -388,83 +517,6 @@ tenant_3_docs
 ```
 
 No tenant data crosses boundaries.
-
----
-
-# Render Deployment
-
----
-
-## 1. Push to GitHub
-
-```bash
-git add .
-git commit -m "Initial commit"
-git push origin main
-```
-
----
-
-## 2. Create Render Web Service
-
-Go to:
-
-```text
-https://render.com
-```
-
-Create:
-
-```text
-New → Web Service
-```
-
-Connect the repository:
-
-```text
-devupalliharsha/imperion-ai
-```
-
----
-
-## 3. Configure Render
-
-### Build Command
-
-```bash
-pip install -r requirements.txt
-```
-
-### Start Command
-
-```bash
-cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
----
-
-## 4. Add Environment Variables
-
-In Render dashboard:
-
-| Key | Value |
-|------|------|
-| GROQ_API_KEY | your_api_key |
-| SECRET_KEY | your_secret |
-| ALGORITHM | HS256 |
-| ACCESS_TOKEN_EXPIRE_MINUTES | 60 |
-
----
-
-## 5. Deploy
-
-Click:
-
-```text
-Create Web Service
-```
-
-Render automatically builds and deploys the platform.
 
 ---
 
@@ -490,7 +542,7 @@ Accessible via:
 
 # Troubleshooting
 
-## bcrypt/passlib error
+## bcrypt/passlib error (Windows)
 
 ```bash
 pip install "bcrypt==3.2.2" --force-reinstall
@@ -502,8 +554,8 @@ pip install "bcrypt==3.2.2" --force-reinstall
 
 Ensure:
 
-- `.env` exists
-- Environment variables are configured on Render
+- `.env` exists locally
+- `GROQ_API_KEY` is set in Render dashboard Environment tab
 
 ---
 
@@ -515,15 +567,13 @@ Delete:
 imperion.db
 ```
 
-and restart the server.
+and restart the server. The database recreates itself automatically.
 
 ---
 
 ## ChromaDB Initialization Error
 
-Normal during first run.
-
-The application automatically creates:
+Normal during first run. The application automatically creates:
 
 ```text
 /chroma_data
@@ -531,42 +581,16 @@ The application automatically creates:
 
 ---
 
-# Optional Docker Deployment
+## Render Free Tier Cold Start
 
-## Dockerfile
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-
-RUN pip install -r requirements.txt
-
-COPY . .
-
-WORKDIR /app/backend
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
----
-
-## Build & Run
-
-```bash
-docker build -t imperion-ai .
-
-docker run -p 8000:8000 --env-file .env imperion-ai
-```
+Render free tier spins down after inactivity. The first request after sleep may take 30-60 seconds. Use [UptimeRobot](https://uptimerobot.com) to ping `/docs` every 5 minutes to keep it alive.
 
 ---
 
 # Rubric Coverage
 
 | Criterion | Implementation |
-|------|----------------|
+|-----------|----------------|
 | Multi-Tenant Architecture | tenant_id isolation |
 | Agent Orchestration | agents/supervisor.py |
 | RAG Pipeline | rag/chroma_store.py |
@@ -576,6 +600,7 @@ docker run -p 8000:8000 --env-file .env imperion-ai
 | JWT + RBAC | auth.py |
 | Observability | AgentTrace + metrics |
 | Frontend Dashboard | frontend/index.html |
+| Docker Deployment | Dockerfile + render.yaml |
 
 ---
 
@@ -596,9 +621,3 @@ docker run -p 8000:8000 --env-file .env imperion-ai
 # License
 
 MIT License
-
----
-
-<div align="center">
-
-</div>
