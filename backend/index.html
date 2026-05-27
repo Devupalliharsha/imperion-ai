@@ -1,407 +1,1354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Imperion AI Platform</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a0f;color:#e8e8f0;font-family:'Syne',sans-serif;min-height:100vh}
-input,textarea,select{font-family:'Syne',sans-serif;background:#111118;border:1px solid rgba(255,255,255,0.08);color:#e8e8f0;border-radius:8px;padding:10px 14px;width:100%;outline:none;font-size:14px;transition:border .2s}
-input:focus,textarea:focus{border-color:#7c6aff}
-button{font-family:'Syne',sans-serif;cursor:pointer;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;transition:all .15s}
-.btn-primary{background:#7c6aff;color:#fff}
-.btn-primary:hover{background:#6b59ee}
-.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
-.btn-ghost{background:transparent;color:#6b6b80;border:1px solid rgba(255,255,255,0.08)}
-.btn-ghost:hover{border-color:#7c6aff;color:#a78bfa}
-.btn-sm{padding:6px 14px;font-size:13px}
-.card{background:#16161f;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px}
-.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace}
-.tag-green{background:rgba(34,211,165,0.1);color:#22d3a5}
-.tag-amber{background:rgba(251,191,36,0.1);color:#fbbf24}
-.tag-red{background:rgba(248,113,113,0.1);color:#f87171}
-.tag-purple{background:rgba(124,106,255,0.1);color:#a78bfa}
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.1);border-top-color:#7c6aff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.fade-in{animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
-.sidebar{width:200px;background:#111118;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;height:100vh;padding:20px 0;position:fixed;left:0;top:0}
-.nav-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:transparent;color:#6b6b80;border:none;cursor:pointer;text-align:left;font-size:14px;font-family:'Syne',sans-serif;font-weight:600;transition:all .15s;width:100%}
-.nav-btn:hover{color:#a78bfa}
-.nav-btn.active{background:rgba(124,106,255,0.15);color:#a78bfa}
-.main{margin-left:200px;flex:1;min-height:100vh;overflow-y:auto}
-.topbar{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Imperion AI Platform</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      /* Minimalist Black & Gray Palette */
+      --bg-base: #000000;
+      --bg-surface: #0a0a0a;
+      --bg-raised: #141414;
+      --bg-elevated: #1f1f1f;
+      
+      --border-subtle: #262626;
+      --border-strong: #404040;
+      
+      --text-main: #ededed;
+      --text-muted: #a1a1aa;
+      --text-faint: #71717a;
+      
+      --accent: #ededed; /* Using bright white/gray as the primary accent for extreme minimalism */
+      --accent-muted: #404040;
+      
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --error: #ef4444;
+      --error-bg: rgba(239, 68, 68, 0.1);
+      
+      --sans: 'Inter', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      
+      --sidebar-width: 260px;
+      --topbar-height: 60px;
+    }
+
+    html, body {
+      height: 100%;
+      height: 100dvh; /* Handles mobile browser bottom bars */
+      overflow: hidden;
+      background: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Subtle background grain/grid for premium feel */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #root {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* ── APP SHELL ── */
+    .app {
+      display: flex;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: var(--bg-base);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .brand-logo::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--bg-base);
+      border-radius: 3px;
+    }
+
+    .brand-text .brand-name {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+    }
+
+    .brand-text .brand-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .nav-section {
+      flex: 1;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      color: var(--text-main);
+      background: var(--bg-surface);
+    }
+
+    .nav-item.active {
+      color: var(--text-main);
+      background: var(--bg-raised);
+    }
+
+    .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: 0.8;
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .role-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .btn-logout {
+      width: 100%;
+      padding: 8px;
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    /* ── OVERLAY (mobile) ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 99;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+      background: var(--bg-surface);
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      padding: 0 24px;
+      height: var(--topbar-height);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px;
+      border: none;
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text-main);
+      border-radius: 2px;
+    }
+
+    .page-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .page-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── PAGE CONTENT ── */
+    .page-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px 24px;
+    }
+
+    .page-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── CARDS & CONTAINERS ── */
+    .card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: var(--mono);
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    .tag-active {
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+
+    /* ── INPUTS ── */
+    input, textarea, select {
+      font-family: var(--sans);
+      font-size: 14px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 12px 16px;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--border-strong);
+      box-shadow: 0 0 0 1px var(--border-strong);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-faint);
+    }
+
+    /* ── BUTTONS ── */
+    button {
+      font-family: var(--sans);
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--text-main);
+      color: var(--bg-base);
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-sm {
+      padding: 8px 16px !important;
+      font-size: 13px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .spinner-dark {
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      border-top-color: var(--bg-base);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg) }
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 24px;
+      border: 1px solid;
+    }
+
+    .alert-err {
+      background: var(--error-bg);
+      color: var(--error);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .alert-ok {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    /* ── AUTH ── */
+    .auth-wrap {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--bg-base);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--text-main);
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .auth-logo::after {
+      content: '';
+      width: 24px;
+      height: 24px;
+      background: var(--bg-base);
+      border-radius: 6px;
+    }
+
+    .auth-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .auth-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .tab-row {
+      display: flex;
+      margin-bottom: 24px;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-radius: 6px;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-raised);
+      color: var(--text-main);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* ── CHAT ── */
+    .chat-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .chat-messages-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .msg-row {
+      display: flex;
+      width: 100%;
+    }
+
+    .msg-user {
+      justify-content: flex-end;
+    }
+
+    .msg-ai {
+      justify-content: flex-start;
+      gap: 16px;
+    }
+
+    .ai-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      background: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    
+    .ai-avatar::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      background: var(--bg-surface);
+      border-radius: 4px;
+    }
+
+    .bubble-user {
+      max-width: 85%;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 14px 18px;
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .bubble-ai {
+      max-width: 90%;
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.7;
+      padding-top: 6px;
+    }
+
+    .chat-footer {
+      padding: 16px 24px 24px;
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+
+    .chat-footer-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+    }
+
+    .chat-input-wrapper {
+      position: relative;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      transition: border 0.2s;
+    }
+
+    .chat-input-wrapper:focus-within {
+      border-color: var(--border-strong);
+    }
+
+    .chat-input {
+      background: transparent;
+      border: none;
+      padding: 16px 56px 16px 20px;
+      border-radius: 16px;
+      min-height: 56px;
+      max-height: 200px;
+      resize: none;
+      box-shadow: none !important;
+    }
+
+    .chat-send {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--text-main);
+      color: var(--bg-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-send:disabled {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    .chat-hint {
+      font-size: 11px;
+      color: var(--text-faint);
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* ── DASHBOARD GRIDS ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .stat-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .stat-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-val {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin: 8px 0 4px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .trace-item, .lead-card {
+      padding: 16px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    @media (min-width: 600px) {
+      .lead-card {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    @media (min-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    .fade { animation: fadeIn 0.3s ease both; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── MOBILE RESPONSIVENESS ── */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .overlay { display: block; }
+      .hamburger { display: flex; }
+      .chat-messages { padding: 16px; }
+      .bubble-user { max-width: 90%; }
+      .chat-footer { padding: 12px 16px 16px; }
+      .page-scroll { padding: 20px 16px; }
+      .card { padding: 16px; }
+    }
+  </style>
 </head>
 <body>
-<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#6b6b80">Loading...</div></div>
-<script type="text/babel">
-const {useState, useEffect, useRef} = React;
-const API = window.location.origin;
+  <div id="root"></div>
 
-function apiFetch(path, opts={}) {
-  const token = localStorage.getItem("imp_token");
-  const headers = {"Content-Type":"application/json"};
-  if (token) headers["Authorization"] = "Bearer " + token;
-  return fetch(API + path, {headers, ...opts}).then(r => r.json());
-}
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    const API = window.location.origin;
 
-function AuthScreen({onLogin}) {
-  const [mode, setMode] = useState("login");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [tenant, setTenant] = useState("");
-  const [role, setRole] = useState("admin");
-  const [err, setErr] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function submit() {
-    setLoading(true); setErr("");
-    try {
-      if (mode === "register") {
-        const r = await apiFetch("/auth/register", {method:"POST", body:JSON.stringify({username, password, tenant_name:tenant, role})});
-        if (r.message) { setMode("login"); setErr("Registered! Now login."); }
-        else setErr(r.detail || "Error");
-      } else {
-        const body = new URLSearchParams({username, password});
-        const r = await fetch(API+"/auth/login",{method:"POST",body,headers:{"Content-Type":"application/x-www-form-urlencoded"}}).then(x=>x.json());
-        if (r.access_token) {
-          localStorage.setItem("imp_token", r.access_token);
-          localStorage.setItem("imp_role", r.role);
-          onLogin(r);
-        } else setErr(r.detail || "Invalid credentials");
-      }
-    } catch(e){ setErr("Connection error — is the server running?"); }
-    setLoading(false);
-  }
-
-  return (
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-      <div style={{width:"100%",maxWidth:400}} className="fade-in">
-        <div style={{textAlign:"center",marginBottom:40}}>
-          <div style={{fontSize:32,fontWeight:800}}><span style={{color:"#7c6aff"}}>IMPERION</span></div>
-          <div style={{color:"#6b6b80",fontSize:13,marginTop:6}}>Multi-tenant AI Platform</div>
-        </div>
-        <div className="card">
-          <div style={{display:"flex",gap:8,marginBottom:20}}>
-            <button onClick={()=>setMode("login")} style={{flex:1}} className={mode==="login"?"btn-primary":"btn-ghost"}>Login</button>
-            <button onClick={()=>setMode("register")} style={{flex:1}} className={mode==="register"?"btn-primary":"btn-ghost"}>Register</button>
-          </div>
-          {err && <div style={{padding:"10px 14px",borderRadius:8,marginBottom:14,background:err.includes("!")?"rgba(34,211,165,0.1)":"rgba(248,113,113,0.1)",color:err.includes("!")?"#22d3a5":"#f87171",fontSize:13}}>{err}</div>}
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            <input placeholder="Username" value={username} onChange={e=>setUsername(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()}/>
-            <input placeholder="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()}/>
-            {mode==="register" && <>
-              <input placeholder="Company name (your tenant)" value={tenant} onChange={e=>setTenant(e.target.value)}/>
-              <select value={role} onChange={e=>setRole(e.target.value)} style={{background:"#111118",color:"#e8e8f0",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,padding:"10px 14px"}}>
-                <option value="admin">Admin</option>
-                <option value="agent">Agent</option>
-              </select>
-            </>}
-            <button className="btn-primary" onClick={submit} disabled={loading} style={{height:44,marginTop:4}}>
-              {loading ? <span className="spinner"/> : (mode==="login" ? "Sign In" : "Create Account")}
-            </button>
-          </div>
-        </div>
-        <div style={{textAlign:"center",marginTop:16,color:"#6b6b80",fontSize:12}}>Register as admin → upload docs → chat</div>
-      </div>
-    </div>
-  );
-}
-
-function ChatTab() {
-  const [messages, setMessages] = useState([{role:"assistant",content:"Hi! I'm your Imperion AI assistant. Upload documents in the Documents tab, then ask me anything about them. I can also search the web, check your CRM, or look up calendar events."}]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sessionId] = useState(()=>"sess_"+Math.random().toString(36).slice(2));
-  const [lastEval, setLastEval] = useState(null);
-  const bottomRef = useRef();
-
-  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); }, [messages]);
-
-  async function send() {
-    if (!input.trim() || loading) return;
-    const q = input; setInput(""); setLoading(true);
-    setMessages(m=>[...m,{role:"user",content:q}]);
-    try {
-      const r = await apiFetch("/agent/chat",{method:"POST",body:JSON.stringify({query:q,session_id:sessionId})});
-      setMessages(m=>[...m,{role:"assistant",content:r.answer||r.detail||"Error getting response",tools:r.tool_calls,eval:r.eval}]);
-      if(r.eval) setLastEval(r.eval);
-    } catch(e){
-      setMessages(m=>[...m,{role:"assistant",content:"Connection error."}]);
+    function apiFetch(path, opts = {}) {
+      const token = localStorage.getItem("imp_token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = "Bearer " + token;
+      return fetch(API + path, { headers, ...opts }).then(r => r.json());
     }
-    setLoading(false);
-  }
 
-  return (
-    <div style={{display:"flex",flexDirection:"column",height:"100vh"}}>
-      <div className="topbar">
-        <div>
-          <div style={{fontWeight:700,fontSize:18}}>AI Chat</div>
-          <div style={{color:"#6b6b80",fontSize:12,marginTop:2,fontFamily:"'JetBrains Mono',monospace"}}>Planner → Retriever → Executor → Critic</div>
-        </div>
-        {lastEval && (
-          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-            <span className="tag tag-purple">⚡ {Math.round(lastEval.latency_ms)}ms</span>
-            <span className="tag tag-green">🎯 {Math.round((lastEval.faithfulness||0)*100)}% grounded</span>
-            <span className={"tag tag-"+(lastEval.hallucination_risk==="low"?"green":lastEval.hallucination_risk==="medium"?"amber":"red")}>hallucination: {lastEval.hallucination_risk}</span>
-            <span className="tag tag-amber">🪙 {lastEval.tokens_used} tokens</span>
+    // ── AUTH ──────────────────────────────────────────────────────────────────────
+    function Auth({ onLogin }) {
+      const [mode, setMode] = useState("login");
+      const [u, setU] = useState("");
+      const [p, setP] = useState("");
+      const [t, setT] = useState("");
+      const [role, setRole] = useState("admin");
+      const [err, setErr] = useState("");
+      const [ok, setOk] = useState("");
+      const [loading, setLoading] = useState(false);
+
+      async function submit() {
+        if (!u.trim() || !p.trim()) return;
+        setLoading(true); setErr(""); setOk("");
+        try {
+          if (mode === "register") {
+            if (!t.trim()) { setErr("Workspace name required"); setLoading(false); return; }
+            const r = await apiFetch("/auth/register", {
+              method: "POST",
+              body: JSON.stringify({ username: u, password: p, tenant_name: t, role })
+            });
+            if (r.message) {
+              setOk("Workspace provisioned. Please sign in.");
+              setMode("login");
+            } else {
+              setErr(r.detail || "Registration failed");
+            }
+          } else {
+            const body = new URLSearchParams({ username: u, password: p });
+            const r = await fetch(API + "/auth/login", {
+              method: "POST",
+              body,
+              headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            }).then(x => x.json());
+            if (r.access_token) {
+              localStorage.setItem("imp_token", r.access_token);
+              localStorage.setItem("imp_role", r.role);
+              onLogin(r);
+            } else setErr(r.detail || "Invalid credentials");
+          }
+        } catch (e) { setErr("Unable to connect to authentication server."); }
+        setLoading(false);
+      }
+
+      return (
+        <div className="auth-wrap">
+          <div className="auth-card fade">
+            <div className="auth-header">
+              <div className="auth-logo" />
+              <div className="auth-title">Imperion</div>
+              <div className="auth-subtitle">Intelligent Agentic Orchestration</div>
+            </div>
+            
+            <div className="card" style={{ padding: "8px" }}>
+              <div className="tab-row">
+                <button className={`tab-btn ${mode === "login" ? "active" : ""}`} onClick={() => { setMode("login"); setErr(""); setOk(""); }}>Sign In</button>
+                <button className={`tab-btn ${mode === "register" ? "active" : ""}`} onClick={() => { setMode("register"); setErr(""); setOk(""); }}>Register</button>
+              </div>
+              
+              <div style={{ padding: "0 16px 16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                {err && <div className="alert alert-err" style={{ marginBottom: 0 }}>{err}</div>}
+                {ok && <div className="alert alert-ok" style={{ marginBottom: 0 }}>{ok}</div>}
+                
+                <input placeholder="Username" value={u} onChange={e => setU(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} />
+                <input placeholder="Password" type="password" value={p} onChange={e => setP(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} />
+                
+                {mode === "register" && (
+                  <>
+                    <input placeholder="Workspace Name" value={t} onChange={e => setT(e.target.value)} />
+                    <select value={role} onChange={e => setRole(e.target.value)}>
+                      <option value="admin">Administrator</option>
+                      <option value="agent">Standard User</option>
+                    </select>
+                  </>
+                )}
+                
+                <button className="btn-primary" onClick={submit} disabled={loading} style={{ marginTop: "8px" }}>
+                  {loading ? <span className="spinner spinner-dark" /> : (mode === "login" ? "Sign In" : "Create Workspace")}
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-      <div style={{flex:1,overflowY:"auto",padding:24,display:"flex",flexDirection:"column",gap:16}}>
-        {messages.map((m,i)=>(
-          <div key={i} className="fade-in" style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
-            <div style={{maxWidth:"75%"}}>
-              {m.role==="assistant" && <div style={{fontSize:11,color:"#6b6b80",marginBottom:4,fontFamily:"'JetBrains Mono',monospace"}}>IMPERION AI</div>}
-              <div style={{background:m.role==="user"?"#7c6aff":"#16161f",border:m.role==="user"?"none":"1px solid rgba(255,255,255,0.08)",borderRadius:m.role==="user"?"12px 12px 4px 12px":"12px 12px 12px 4px",padding:"12px 16px",color:m.role==="user"?"#fff":"#e8e8f0",fontSize:14,lineHeight:1.6,whiteSpace:"pre-wrap"}}>{m.content}</div>
-              {m.tools && m.tools.length>0 && (
-                <div style={{marginTop:6,display:"flex",gap:6,flexWrap:"wrap"}}>
-                  {m.tools.map(t=><span key={t} className="tag tag-green">🔧 {t}</span>)}
+        </div>
+      );
+    }
+
+    // ── SIDEBAR ───────────────────────────────────────────────────────────────────
+    function Sidebar({ tab, setTab, onLogout, role, open, onClose }) {
+      const items = [
+        { id: "chat", icon: "💬", label: "Chat" },
+        { id: "docs", icon: "📄", label: "Knowledge" },
+        { id: "metrics", icon: "📊", label: "Observability" },
+        { id: "leads", icon: "👥", label: "CRM" },
+        { id: "memory", icon: "🧠", label: "Context" },
+        { id: "about", icon: "ℹ️", label: "Overview" },
+      ];
+
+      function go(id) { setTab(id); onClose(); }
+
+      return (
+        <>
+          {open && <div className="overlay" onClick={onClose} />}
+          <div className={`sidebar ${open ? "open" : ""}`}>
+            <div className="sidebar-brand">
+              <div className="brand-logo" />
+              <div className="brand-text">
+                <div className="brand-name">Imperion AI</div>
+                <div className="brand-sub">Workspace</div>
+              </div>
+            </div>
+            
+            <div className="nav-section">
+              {items.map(item => (
+                <button key={item.id} className={`nav-item ${tab === item.id ? "active" : ""}`} onClick={() => go(item.id)}>
+                  <span className="nav-icon">{item.icon}</span>{item.label}
+                </button>
+              ))}
+            </div>
+            
+            <div className="sidebar-footer">
+              <div className="role-badge">{(role || "User").toUpperCase()}</div>
+              <button className="btn-logout" onClick={onLogout}>Sign Out</button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    // ── CHAT ──────────────────────────────────────────────────────────────────────
+    function Chat({ onHamburger }) {
+      const [msgs, setMsgs] = useState([
+        { role: "ai", content: "Hello. I am the Imperion AI orchestration agent.\n\nI am connected to your workspace documents, CRM, and memory context. How can I assist you today?" }
+      ]);
+      const [input, setInput] = useState("");
+      const [loading, setLoading] = useState(false);
+      const [sessionId] = useState(() => "sess_" + Date.now());
+      const bottomRef = useRef();
+      const inputRef = useRef();
+
+      useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }) }, [msgs, loading]);
+
+      async function send() {
+        const q = input.trim();
+        if (!q || loading) return;
+        
+        setInput("");
+        setLoading(true);
+        setMsgs(m => [...m, { role: "user", content: q }]);
+        
+        try {
+          const r = await apiFetch("/agent/chat", {
+            method: "POST",
+            body: JSON.stringify({ query: q, session_id: sessionId })
+          });
+          setMsgs(m => [...m, { role: "ai", content: r.answer || r.detail || "No response received.", tools: r.tool_calls }]);
+        } catch (e) {
+          setMsgs(m => [...m, { role: "ai", content: "Connection error. Please verify network connectivity." }]);
+        }
+        setLoading(false);
+      }
+
+      function onKey(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          send();
+        }
+      }
+
+      return (
+        <div className="chat-shell">
+          <div className="topbar">
+            <div className="topbar-left">
+              <button className="hamburger" onClick={onHamburger}>
+                <span /><span /><span />
+              </button>
+              <div>
+                <div className="page-title">Intelligence Core</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="chat-messages">
+            <div className="chat-messages-inner">
+              {msgs.map((m, i) => (
+                <div key={i} className={`msg-row fade ${m.role === "user" ? "msg-user" : "msg-ai"}`}>
+                  {m.role === "ai" && <div className="ai-avatar" />}
+                  <div style={{ maxWidth: m.role === 'ai' ? '100%' : 'auto' }}>
+                    <div className={m.role === "user" ? "bubble-user" : "bubble-ai"}>{m.content}</div>
+                    {m.tools && m.tools.length > 0 && (
+                      <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        {m.tools.map(t => <span key={t} className="tag tag-active">Action: {t}</span>)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              {loading && (
+                <div className="msg-row msg-ai fade">
+                  <div className="ai-avatar" />
+                  <div className="bubble-ai" style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--text-muted)" }}>
+                    <div className="spinner" style={{ borderColor: "rgba(255,255,255,0.1)", borderTopColor: "var(--text-muted)" }} />
+                    <span style={{ fontSize: 14 }}>Processing...</span>
+                  </div>
                 </div>
               )}
+              <div ref={bottomRef} />
             </div>
           </div>
-        ))}
-        {loading && (
-          <div className="fade-in" style={{display:"flex",gap:10,alignItems:"center"}}>
-            <div className="spinner"/>
-            <span style={{color:"#6b6b80",fontSize:13}}>Planning → Retrieving → Executing → Validating...</span>
-          </div>
-        )}
-        <div ref={bottomRef}/>
-      </div>
-      <div style={{padding:"16px 24px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:10}}>
-        <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&send()} placeholder="Ask anything… try: 'search the web for AI trends' or 'check my calendar'" style={{flex:1,height:44}}/>
-        <button className="btn-primary" onClick={send} disabled={loading} style={{width:80,height:44}}>
-          {loading ? <span className="spinner"/> : "Send"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function DocsTab() {
-  const [file, setFile] = useState(null);
-  const [text, setText] = useState("");
-  const [source, setSource] = useState("manual");
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function uploadFile() {
-    if(!file) return; setLoading(true); setMsg("");
-    const fd = new FormData(); fd.append("file", file);
-    const token = localStorage.getItem("imp_token");
-    const r = await fetch(API+"/docs/upload",{method:"POST",headers:{Authorization:"Bearer "+token},body:fd}).then(x=>x.json());
-    setMsg(r.message||r.detail||"Done"); setLoading(false);
-  }
-
-  async function addText() {
-    if(!text.trim()) return; setLoading(true); setMsg("");
-    const r = await apiFetch("/docs/add-text",{method:"POST",body:JSON.stringify({text,source})});
-    setMsg(r.message||r.detail); setText(""); setLoading(false);
-  }
-
-  return (
-    <div style={{padding:24,maxWidth:700}}>
-      <div style={{fontWeight:700,fontSize:20,marginBottom:4}}>Document Knowledge Base</div>
-      <div style={{color:"#6b6b80",fontSize:13,marginBottom:24}}>Uploaded docs are chunked, embedded, and stored in ChromaDB. The agent retrieves them during chat.</div>
-      <div className="card" style={{marginBottom:16}}>
-        <div style={{fontWeight:600,marginBottom:10}}>Upload a file (.txt, .md, .csv)</div>
-        <input type="file" accept=".txt,.md,.csv" onChange={e=>setFile(e.target.files[0])} style={{marginBottom:12,background:"transparent",border:"none",padding:0}}/>
-        <br/>
-        <button className="btn-primary btn-sm" onClick={uploadFile} disabled={loading||!file}>
-          {loading ? <span className="spinner"/> : "Upload & Index"}
-        </button>
-      </div>
-      <div className="card">
-        <div style={{fontWeight:600,marginBottom:10}}>Add text directly</div>
-        <textarea value={text} onChange={e=>setText(e.target.value)} rows={5} placeholder="Paste any knowledge here — FAQs, product info, company data..." style={{marginBottom:10,resize:"vertical"}}/>
-        <input value={source} onChange={e=>setSource(e.target.value)} placeholder="Source label (e.g. company-faq)" style={{marginBottom:10}}/>
-        <button className="btn-primary btn-sm" onClick={addText} disabled={loading||!text.trim()}>
-          {loading ? <span className="spinner"/> : "Add to Knowledge Base"}
-        </button>
-      </div>
-      {msg && <div style={{marginTop:14,padding:"10px 14px",borderRadius:8,background:"rgba(34,211,165,0.1)",color:"#22d3a5",fontSize:13}}>{msg}</div>}
-    </div>
-  );
-}
-
-function MetricsTab() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(()=>{ apiFetch("/metrics/dashboard").then(r=>{setData(r);setLoading(false);}); },[]);
-
-  if(loading) return <div style={{padding:40,display:"flex",gap:12,alignItems:"center"}}><div className="spinner"/><span style={{color:"#6b6b80"}}>Loading...</span></div>;
-
-  const stats = [
-    {label:"Total Queries",value:data.total_queries,icon:"🔍"},
-    {label:"Avg Latency",value:data.avg_latency_ms+"ms",icon:"⚡"},
-    {label:"Total Tokens",value:(data.total_tokens||0).toLocaleString(),icon:"🪙"},
-    {label:"CRM Leads",value:data.lead_count,icon:"👤"},
-    {label:"Memories",value:data.memory_count,icon:"🧠"},
-  ];
-
-  return (
-    <div style={{padding:24}}>
-      <div style={{fontWeight:700,fontSize:20,marginBottom:4}}>Observability Dashboard</div>
-      <div style={{color:"#6b6b80",fontSize:13,marginBottom:24}}>Every agent run is traced and evaluated automatically.</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:12,marginBottom:24}}>
-        {stats.map(s=>(
-          <div key={s.label} className="card" style={{textAlign:"center"}}>
-            <div style={{fontSize:24,marginBottom:8}}>{s.icon}</div>
-            <div style={{fontSize:22,fontWeight:700,color:"#a78bfa"}}>{s.value}</div>
-            <div style={{color:"#6b6b80",fontSize:12,marginTop:4}}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-      <div className="card">
-        <div style={{fontWeight:600,marginBottom:14}}>Recent Agent Traces</div>
-        {(!data.recent_traces||data.recent_traces.length===0) && <div style={{color:"#6b6b80",fontSize:13}}>No traces yet. Send a chat message first.</div>}
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {(data.recent_traces||[]).map((t,i)=>(
-            <div key={i} style={{padding:"10px 14px",background:"#111118",borderRadius:8,border:"1px solid rgba(255,255,255,0.06)"}}>
-              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:"#a78bfa",marginBottom:6,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.query}</div>
-              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                <span className="tag tag-purple">⚡ {Math.round(t.latency_ms||0)}ms</span>
-                <span className="tag tag-amber">🪙 {t.tokens}</span>
-                {(t.tools||[]).map(tool=><span key={tool} className="tag tag-green">🔧 {tool}</span>)}
+          
+          <div className="chat-footer">
+            <div className="chat-footer-inner">
+              <div className="chat-input-wrapper">
+                <textarea 
+                  ref={inputRef} 
+                  className="chat-input" 
+                  value={input} 
+                  onChange={e => setInput(e.target.value)} 
+                  onKeyDown={onKey} 
+                  placeholder="Message Imperion AI..." 
+                  rows={1} 
+                />
+                <button className="chat-send" onClick={send} disabled={loading || !input.trim()}>
+                  {loading ? <span className="spinner spinner-dark" style={{ width: 14, height: 14 }} /> : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="19" x2="12" y2="5"></line>
+                      <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                  )}
+                </button>
               </div>
+              <div className="chat-hint">Imperion AI can make mistakes. Consider verifying important information.</div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      );
+    }
 
-function LeadsTab() {
-  const [leads, setLeads] = useState([]);
-  const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(true); const [msg, setMsg] = useState("");
+    // ── KNOWLEDGE BASE ────────────────────────────────────────────────────────────
+    function Docs({ onHamburger }) {
+      const [file, setFile] = useState(null);
+      const [text, setText] = useState("");
+      const [source, setSource] = useState("");
+      const [msg, setMsg] = useState({});
+      const [loading, setLoading] = useState(false);
 
-  function load() { apiFetch("/metrics/leads").then(r=>{setLeads(Array.isArray(r)?r:[]);setLoading(false);}); }
-  useEffect(()=>{ load(); },[]);
-
-  async function create() {
-    const r = await apiFetch("/metrics/leads",{method:"POST",body:JSON.stringify({name,email,notes})});
-    if(r.id){setMsg("Lead created!");setName("");setEmail("");setNotes("");load();}
-    else setMsg(r.detail||"Error");
-  }
-
-  return (
-    <div style={{padding:24,maxWidth:800}}>
-      <div style={{fontWeight:700,fontSize:20,marginBottom:4}}>CRM Leads</div>
-      <div style={{color:"#6b6b80",fontSize:13,marginBottom:24}}>The crm_lookup tool reads from this table. Try asking the agent to look up a lead.</div>
-      <div className="card" style={{marginBottom:20}}>
-        <div style={{fontWeight:600,marginBottom:12}}>Add Lead</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
-          <input placeholder="Name" value={name} onChange={e=>setName(e.target.value)}/>
-          <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}/>
-        </div>
-        <input placeholder="Notes" value={notes} onChange={e=>setNotes(e.target.value)} style={{marginBottom:10}}/>
-        <button className="btn-primary btn-sm" onClick={create}>Add Lead</button>
-        {msg && <span style={{marginLeft:12,fontSize:13,color:"#22d3a5"}}>{msg}</span>}
-      </div>
-      {loading ? <div className="spinner"/> :
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {leads.map(l=>(
-            <div key={l.id} className="card" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div>
-                <div style={{fontWeight:600}}>{l.name}</div>
-                <div style={{color:"#6b6b80",fontSize:13,fontFamily:"'JetBrains Mono',monospace"}}>{l.email}</div>
-                {l.notes && <div style={{fontSize:12,color:"#6b6b80",marginTop:4}}>{l.notes}</div>}
-              </div>
-              <span className={"tag tag-"+(l.status==="converted"?"green":l.status==="contacted"?"amber":"purple")}>{l.status}</span>
-            </div>
-          ))}
-          {leads.length===0 && <div style={{color:"#6b6b80",fontSize:13}}>No leads yet.</div>}
-        </div>
+      async function uploadFile() {
+        if (!file) return; 
+        setLoading(true); setMsg({});
+        const fd = new FormData(); 
+        fd.append("file", file);
+        const token = localStorage.getItem("imp_token");
+        const r = await fetch(API + "/docs/upload", { method: "POST", headers: { Authorization: "Bearer " + token }, body: fd }).then(x => x.json());
+        setMsg({ text: r.message || r.detail, ok: !!r.message }); 
+        setFile(null); 
+        setLoading(false);
       }
-    </div>
-  );
-}
 
-function MemoryTab() {
-  const [content, setContent] = useState(""); const [type, setType] = useState("fact"); const [msg, setMsg] = useState("");
-  async function save() {
-    if(!content.trim()) return;
-    const r = await apiFetch("/metrics/memory",{method:"POST",body:JSON.stringify({content,type})});
-    setMsg(r.message||"Saved!"); setContent("");
-  }
-  return (
-    <div style={{padding:24,maxWidth:600}}>
-      <div style={{fontWeight:700,fontSize:20,marginBottom:4}}>Long-term Memory</div>
-      <div style={{color:"#6b6b80",fontSize:13,marginBottom:24}}>Facts saved here are injected into every agent system prompt — the agent will always remember them.</div>
-      <div className="card">
-        <textarea value={content} onChange={e=>setContent(e.target.value)} rows={3} placeholder="e.g. 'User prefers formal responses' or 'Company is in healthcare industry'" style={{marginBottom:10,resize:"vertical"}}/>
-        <div style={{display:"flex",gap:10,alignItems:"center"}}>
-          <select value={type} onChange={e=>setType(e.target.value)} style={{flex:1,background:"#111118",color:"#e8e8f0",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,padding:"10px 14px"}}>
-            <option value="fact">Fact</option>
-            <option value="preference">Preference</option>
-            <option value="history">History</option>
-          </select>
-          <button className="btn-primary btn-sm" onClick={save} disabled={!content.trim()}>Save</button>
+      async function addText() {
+        if (!text.trim()) return; 
+        setLoading(true); setMsg({});
+        const r = await apiFetch("/docs/add-text", { method: "POST", body: JSON.stringify({ text, source: source || "manual-entry" }) });
+        setMsg({ text: r.message || r.detail, ok: !!r.message }); 
+        setText(""); 
+        setLoading(false);
+      }
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+          <div className="topbar">
+            <div className="topbar-left">
+              <button className="hamburger" onClick={onHamburger}><span /><span /><span /></button>
+              <div>
+                <div className="page-title">Knowledge Base</div>
+                <div className="page-sub">Document Indexing & Retrieval</div>
+              </div>
+            </div>
+          </div>
+          <div className="page-scroll">
+            <div className="page-inner">
+              {msg.text && <div className={`alert ${msg.ok ? "alert-ok" : "alert-err"}`}>{msg.text}</div>}
+              
+              <div className="card" style={{ background: "var(--bg-elevated)", borderColor: "transparent" }}>
+                <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
+                  Upload documents to your secure workspace. The orchestration agent will automatically semantic-search these materials when queried.
+                </p>
+              </div>
+              
+              <div className="grid-2">
+                <div>
+                  <div className="section-title">File Upload</div>
+                  <div className="card">
+                    <p style={{ fontSize: 12, color: "var(--text-faint)", marginBottom: 16 }}>Supported formats: .txt, .md, .csv</p>
+                    <input type="file" accept=".txt,.md,.csv" onChange={e => setFile(e.target.files[0])} style={{ marginBottom: 16, padding: "8px 0", border: "none", background: "transparent" }} />
+                    <button className="btn-primary" onClick={uploadFile} disabled={loading || !file} style={{ width: "100%" }}>
+                      {loading ? <span className="spinner spinner-dark" /> : "Process & Index"}
+                    </button>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="section-title">Manual Entry</div>
+                  <div className="card">
+                    <textarea value={text} onChange={e => setText(e.target.value)} rows={4} placeholder="Input raw text for immediate indexing..." style={{ marginBottom: 12 }} />
+                    <input value={source} onChange={e => setSource(e.target.value)} placeholder="Reference Tag (Optional)" style={{ marginBottom: 16 }} />
+                    <button className="btn-primary" onClick={addText} disabled={loading || !text.trim()} style={{ width: "100%" }}>
+                      {loading ? <span className="spinner spinner-dark" /> : "Index Content"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        {msg && <div style={{marginTop:10,color:"#22d3a5",fontSize:13}}>{msg}</div>}
-      </div>
-    </div>
-  );
-}
+      );
+    }
 
-function Sidebar({tab, setTab, onLogout, role}) {
-  const tabs = [{id:"chat",icon:"💬",label:"Chat"},{id:"docs",icon:"📄",label:"Documents"},{id:"metrics",icon:"📊",label:"Metrics"},{id:"leads",icon:"👤",label:"CRM Leads"},{id:"memory",icon:"🧠",label:"Memory"}];
-  return (
-    <div className="sidebar">
-      <div style={{padding:"0 20px",marginBottom:28}}>
-        <div style={{fontWeight:800,fontSize:18,color:"#7c6aff"}}>IMPERION</div>
-        <div style={{fontSize:11,color:"#6b6b80",marginTop:2,fontFamily:"'JetBrains Mono',monospace"}}>AI PLATFORM</div>
-      </div>
-      <div style={{flex:1,display:"flex",flexDirection:"column",gap:2,padding:"0 10px"}}>
-        {tabs.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} className={"nav-btn"+(tab===t.id?" active":"")}>
-            <span>{t.icon}</span>{t.label}
-          </button>
-        ))}
-      </div>
-      <div style={{padding:"0 10px"}}>
-        <div style={{fontSize:12,color:"#6b6b80",padding:"8px 12px",fontFamily:"'JetBrains Mono',monospace"}}>{(role||"").toUpperCase()}</div>
-        <button onClick={onLogout} className="btn-ghost btn-sm" style={{width:"100%"}}>Sign Out</button>
-      </div>
-    </div>
-  );
-}
+    // ── METRICS/OBSERVABILITY ─────────────────────────────────────────────────────
+    function Metrics({ onHamburger }) {
+      const [data, setData] = useState(null);
+      useEffect(() => { apiFetch("/metrics/dashboard").then(r => setData(r)); }, []);
 
-function App() {
-  const [user, setUser] = useState(()=>{
-    const token = localStorage.getItem("imp_token");
-    const role = localStorage.getItem("imp_role");
-    return token ? {token, role} : null;
-  });
-  const [tab, setTab] = useState("chat");
+      if (!data) return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          <div className="topbar">
+            <div className="topbar-left"><button className="hamburger" onClick={onHamburger}><span /><span /><span /></button><div className="page-title">Observability</div></div>
+          </div>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+            <div className="spinner" /><span style={{ color: "var(--text-muted)" }}>Fetching telemetry...</span>
+          </div>
+        </div>
+      );
 
-  function logout() { localStorage.removeItem("imp_token"); localStorage.removeItem("imp_role"); setUser(null); }
+      const stats = [
+        { label: "Total Queries", value: data.total_queries },
+        { label: "Avg Latency", value: data.avg_latency_ms + "ms" },
+        { label: "Token Usage", value: (data.total_tokens || 0).toLocaleString() },
+        { label: "Active Contexts", value: data.memory_count },
+      ];
 
-  if (!user) return React.createElement(AuthScreen, {onLogin: u => setUser(u)});
+      return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+          <div className="topbar">
+            <div className="topbar-left">
+              <button className="hamburger" onClick={onHamburger}><span /><span /><span /></button>
+              <div><div className="page-title">Observability</div><div className="page-sub">System Telemetry & Traces</div></div>
+            </div>
+          </div>
+          <div className="page-scroll">
+            <div className="page-inner">
+              <div className="stat-grid">
+                {stats.map(s => (
+                  <div key={s.label} className="stat-card fade">
+                    <div className="stat-label">{s.label}</div>
+                    <div className="stat-val">{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="section-title">Execution Log</div>
+              {(!data.recent_traces || data.recent_traces.length === 0) && (
+                <div className="card" style={{ textAlign: "center", padding: 40, color: "var(--text-faint)" }}>No execution traces found.</div>
+              )}
+              {(data.recent_traces || []).map((t, i) => (
+                <div key={i} className="trace-item fade">
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 13, color: "var(--text-main)", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.query}</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <span className="tag">{Math.round(t.latency_ms || 0)}ms</span>
+                    <span className="tag">{t.tokens} tokens</span>
+                    {(t.tools || []).map(tool => <span key={tool} className="tag tag-active">{tool}</span>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
 
-  const tabMap = {chat:React.createElement(ChatTab), docs:React.createElement(DocsTab), metrics:React.createElement(MetricsTab), leads:React.createElement(LeadsTab), memory:React.createElement(MemoryTab)};
+    // ── CRM / LEADS ───────────────────────────────────────────────────────────────
+    function Leads({ onHamburger }) {
+      const [leads, setLeads] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [name, setName] = useState("");
+      const [email, setEmail] = useState("");
+      const [notes, setNotes] = useState("");
 
-  return (
-    <div style={{display:"flex"}}>
-      <Sidebar tab={tab} setTab={setTab} onLogout={logout} role={user.role}/>
-      <div className="main">{tabMap[tab]}</div>
-    </div>
-  );
-}
+      function load() { apiFetch("/metrics/leads").then(r => { setLeads(Array.isArray(r) ? r : []); setLoading(false); }); }
+      useEffect(() => { load(); }, []);
 
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
-</script>
+      async function create() {
+        if (!name.trim()) return;
+        await apiFetch("/metrics/leads", { method: "POST", body: JSON.stringify({ name, email, notes }) });
+        setName(""); setEmail(""); setNotes(""); load();
+      }
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+          <div className="topbar">
+            <div className="topbar-left">
+              <button className="hamburger" onClick={onHamburger}><span /><span /><span /></button>
+              <div><div className="page-title">CRM</div><div className="page-sub">Client Relationship Management</div></div>
+            </div>
+          </div>
+          <div className="page-scroll">
+            <div className="page-inner">
+              <div className="card grid-2" style={{ alignItems: "end", background: "var(--bg-elevated)", borderColor: "transparent" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>Entity Name</label>
+                  <input value={name} onChange={e => setName(e.target.value)} />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>Contact Details</label>
+                  <input value={email} onChange={e => setEmail(e.target.value)} />
+                </div>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>Context / Notes</label>
+                  <input value={notes} onChange={e => setNotes(e.target.value)} />
+                </div>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <button className="btn-primary" onClick={create} disabled={!name.trim()}>Register Entity</button>
+                </div>
+              </div>
+
+              <div className="section-title" style={{ marginTop: 32 }}>Registry Directory ({leads.length})</div>
+              {loading ? <div style={{ padding: 40, textAlign: "center" }}><div className="spinner" /></div> :
+                leads.length === 0 ? <div className="card" style={{ textAlign: "center", padding: 40, color: "var(--text-faint)" }}>Registry is empty.</div> :
+                leads.map(l => (
+                  <div key={l.id} className="lead-card fade">
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-main)" }}>{l.name}</div>
+                      {l.email && <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>{l.email}</div>}
+                      {l.notes && <div style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 8 }}>{l.notes}</div>}
+                    </div>
+                    <span className="tag">{l.status || 'Registered'}</span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── MEMORY / CONTEXT ──────────────────────────────────────────────────────────
+    function Memory({ onHamburger }) {
+      const [content, setContent] = useState("");
+      const [type, setType] = useState("fact");
+      const [msg, setMsg] = useState("");
+
+      async function save() {
+        if (!content.trim()) return;
+        const r = await apiFetch("/metrics/memory", { method: "POST", body: JSON.stringify({ content, type }) });
+        setMsg(r.message || "Context updated.");
+        setContent("");
+        setTimeout(() => setMsg(""), 3000);
+      }
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+          <div className="topbar">
+            <div className="topbar-left">
+              <button className="hamburger" onClick={onHamburger}><span /><span /><span /></button>
+              <div><div className="page-title">Persistent Context</div><div className="page-sub">Global Agent Directives</div></div>
+            </div>
+          </div>
+          <div className="page-scroll">
+            <div className="page-inner">
+              <div className="card" style={{ background: "var(--bg-elevated)", borderColor: "transparent" }}>
+                <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  Directives established here operate as foundational context across all subsequent agent interactions within this workspace.
+                </p>
+              </div>
+              
+              <div className="card">
+                <textarea 
+                  value={content} 
+                  onChange={e => setContent(e.target.value)} 
+                  rows={5}
+                  placeholder="Define operational parameters, brand guidelines, or critical workspace facts..."
+                  style={{ marginBottom: 16 }}
+                />
+                <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+                  <select value={type} onChange={e => setType(e.target.value)} style={{ width: "auto", minWidth: "200px" }}>
+                    <option value="fact">Operational Fact</option>
+                    <option value="preference">Agent Protocol</option>
+                    <option value="history">Historical Context</option>
+                  </select>
+                  <button className="btn-primary" onClick={save} disabled={!content.trim()}>Commit Directive</button>
+                  {msg && <span style={{ fontSize: 13, color: "var(--success)" }}>{msg}</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── ABOUT ─────────────────────────────────────────────────────────────────────
+    function About({ onHamburger }) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+          <div className="topbar">
+            <div className="topbar-left">
+              <button className="hamburger" onClick={onHamburger}><span /><span /><span /></button>
+              <div><div className="page-title">Platform Overview</div></div>
+            </div>
+          </div>
+          <div className="page-scroll">
+            <div className="page-inner" style={{ textAlign: "center", padding: "40px 0" }}>
+              <div className="auth-logo" style={{ width: 64, height: 64, borderRadius: 16, margin: "0 auto 24px" }} />
+              <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Imperion Agentic Platform</h1>
+              <p style={{ fontSize: 15, color: "var(--text-muted)", maxWidth: 600, margin: "0 auto 40px", lineHeight: 1.6 }}>
+                An enterprise-grade orchestration environment providing seamless integration between localized knowledge bases, client management structures, and autonomous AI reasoning.
+              </p>
+              
+              <div className="grid-2" style={{ textAlign: "left" }}>
+                <div className="card">
+                  <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 15 }}>Isolated Architecture</div>
+                  <div style={{ fontSize: 14, color: "var(--text-muted)" }}>Workspace data is fully partitioned, ensuring organizational data integrity.</div>
+                </div>
+                <div className="card">
+                  <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 15 }}>RAG Pipeline</div>
+                  <div style={{ fontSize: 14, color: "var(--text-muted)" }}>Hybrid semantic search guarantees precise information retrieval from your provided corpus.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── APP WRAPPER ───────────────────────────────────────────────────────────────
+    function App() {
+      const [user, setUser] = useState(() => {
+        const token = localStorage.getItem("imp_token");
+        const role = localStorage.getItem("imp_role");
+        return token ? { token, role } : null;
+      });
+      const [tab, setTab] = useState("chat");
+      const [sidebarOpen, setSidebarOpen] = useState(false);
+
+      function logout() {
+        localStorage.removeItem("imp_token");
+        localStorage.removeItem("imp_role");
+        setUser(null);
+      }
+
+      function toggleSidebar() { setSidebarOpen(o => !o); }
+      function closeSidebar() { setSidebarOpen(false); }
+
+      if (!user) return <Auth onLogin={u => setUser(u)} />;
+
+      const pages = {
+        chat: <Chat onHamburger={toggleSidebar} />,
+        docs: <Docs onHamburger={toggleSidebar} />,
+        metrics: <Metrics onHamburger={toggleSidebar} />,
+        leads: <Leads onHamburger={toggleSidebar} />,
+        memory: <Memory onHamburger={toggleSidebar} />,
+        about: <About onHamburger={toggleSidebar} />,
+      };
+
+      return (
+        <div className="app">
+          <Sidebar tab={tab} setTab={setTab} onLogout={logout} role={user.role} open={sidebarOpen} onClose={closeSidebar} />
+          <div className="main">{pages[tab]}</div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
 </body>
 </html>
