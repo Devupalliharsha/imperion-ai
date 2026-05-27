@@ -44,7 +44,7 @@ button{font-family:'Syne',sans-serif;cursor:pointer;border:none;border-radius:8p
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#6b6b80">Loading...</div></div>
 <script type="text/babel">
 const {useState, useEffect, useRef} = React;
-const API_URL = "";
+const API = window.location.origin;
 
 function apiFetch(path, opts={}) {
   const token = localStorage.getItem("imp_token");

@@ -44,13 +44,13 @@ button{font-family:'Syne',sans-serif;cursor:pointer;border:none;border-radius:8p
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#6b6b80">Loading...</div></div>
 <script type="text/babel">
 const {useState, useEffect, useRef} = React;
-const API_URL = "";
+const API = window.location.origin;
 
 function apiFetch(path, opts={}) {
   const token = localStorage.getItem("imp_token");
   const headers = {"Content-Type":"application/json"};
   if (token) headers["Authorization"] = "Bearer " + token;
-  return fetch(API_URL + path, {headers, ...opts}).then(r => r.json());
+  return fetch(API + path, {headers, ...opts}).then(r => r.json());
 }
 
 function AuthScreen({onLogin}) {
@@ -71,7 +71,7 @@ function AuthScreen({onLogin}) {
         else setErr(r.detail || "Error");
       } else {
         const body = new URLSearchParams({username, password});
-        const r = await fetch(API_URL+"/auth/login",{method:"POST",body,headers:{"Content-Type":"application/x-www-form-urlencoded"}}).then(x=>x.json());
+        const r = await fetch(API+"/auth/login",{method:"POST",body,headers:{"Content-Type":"application/x-www-form-urlencoded"}}).then(x=>x.json());
         if (r.access_token) {
           localStorage.setItem("imp_token", r.access_token);
           localStorage.setItem("imp_role", r.role);
@@ -199,7 +199,7 @@ function DocsTab() {
     if(!file) return; setLoading(true); setMsg("");
     const fd = new FormData(); fd.append("file", file);
     const token = localStorage.getItem("imp_token");
-    const r = await fetch(API_URL+"/docs/upload",{method:"POST",headers:{Authorization:"Bearer "+token},body:fd}).then(x=>x.json());
+    const r = await fetch(API+"/docs/upload",{method:"POST",headers:{Authorization:"Bearer "+token},body:fd}).then(x=>x.json());
     setMsg(r.message||r.detail||"Done"); setLoading(false);
   }
 

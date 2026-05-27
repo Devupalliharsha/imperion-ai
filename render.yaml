@@ -1,7 +1,6 @@
 services:
   - type: web
     name: imperion-ai
-    
     runtime: python
     region: oregon
     plan: free

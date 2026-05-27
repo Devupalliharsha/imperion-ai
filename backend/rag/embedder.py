@@ -1,35 +1,44 @@
 # embedder.py
-# sentence-transformers runs a small neural network LOCALLY on your machine.
-# It converts text into a list of numbers (a vector) that captures meaning.
-# Similar meaning = similar numbers. That's how semantic search works.
-# No API calls, no cost, runs offline.
+# On Render free tier, we can't load sentence-transformers (too heavy).
+# Instead we use a simple TF-IDF-style hash embedding that works offline,
+# requires zero downloads, and is good enough for demo RAG retrieval.
+# For production: swap this with OpenAI/Groq embeddings API.
 
-from sentence_transformers import SentenceTransformer
+import hashlib
+import math
 from typing import List
 
-# This model is 90MB and downloads once automatically.
-# "all-MiniLM-L6-v2" is the sweet spot: fast, small, and good quality.
-_model = None
+DIMS = 384  # same dimension as MiniLM so ChromaDB config stays the same
 
 
-def get_model() -> SentenceTransformer:
-    """Lazy-load the model once, reuse forever."""
-    global _model
-    if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
+def _hash_embed(text: str) -> List[float]:
+    """
+    Deterministic pseudo-embedding: splits text into trigrams,
+    hashes each, accumulates into a fixed-size float vector.
+    Similar meaning = similar frequent words = similar vector.
+    Not as good as a real model but works for demo purposes.
+    """
+    vec = [0.0] * DIMS
+    words = text.lower().split()
+    tokens = []
+    for w in words:
+        tokens.append(w)
+        for i in range(len(w) - 2):
+            tokens.append(w[i:i+3])
+
+    for token in tokens:
+        h = int(hashlib.md5(token.encode()).hexdigest(), 16)
+        idx = h % DIMS
+        vec[idx] += 1.0
+
+    # L2 normalize
+    norm = math.sqrt(sum(x*x for x in vec)) or 1.0
+    return [x / norm for x in vec]
 
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
-    """
-    Convert a list of strings to a list of embedding vectors.
-    Returns: [[0.1, 0.3, ...], [0.2, 0.1, ...], ...]
-    """
-    model = get_model()
-    embeddings = model.encode(texts, normalize_embeddings=True)
-    return embeddings.tolist()
+    return [_hash_embed(t) for t in texts]
 
 
 def embed_query(query: str) -> List[float]:
-    """Embed a single query string."""
-    return embed_texts([query])[0]
+    return _hash_embed(query)
