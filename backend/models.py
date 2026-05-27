@@ -83,3 +83,17 @@ class AgentTrace(Base):
     latency_ms = Column(Float, default=0.0)
     error = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
+
+    class ScheduledTask(Base):
+    """
+    Tasks scheduled by the AI agent during chat.
+    """
+    __tablename__ = "scheduled_tasks"
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, index=True)
+    user_id = Column(Integer, index=True)
+    title = Column(String)
+    description = Column(Text, default="")
+    status = Column(String, default="pending")     # pending | done | cancelled
+    scheduled_for = Column(String, default="")
+    created_at = Column(DateTime, server_default=func.now())
